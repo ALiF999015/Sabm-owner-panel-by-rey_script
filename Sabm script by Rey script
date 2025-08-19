@@ -12,9 +12,10 @@ IntroGui.ResetOnSpawn = false
 local Background = Instance.new("Frame")
 Background.Parent = IntroGui
 Background.Size = UDim2.new(1,0,1,0)
-Background.BackgroundColor3 = Color3.fromRGB(135, 206, 250)
+Background.BackgroundColor3 = Color3.fromRGB(135, 206, 250) -- light blue
 Background.BorderSizePixel = 0
 
+-- Text "Created by Rey_Script"
 local Title = Instance.new("TextLabel")
 Title.Parent = Background
 Title.Size = UDim2.new(1,0,0,50)
@@ -23,8 +24,10 @@ Title.Text = "✨ Created by Rey_Script ✨"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 32
 Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.TextTransparency = 0.3 -- 🔹 lebih tipis
 Title.BackgroundTransparency = 1
 
+-- Text "Discord: UdinPeot"
 local Discord = Instance.new("TextLabel")
 Discord.Parent = Background
 Discord.Size = UDim2.new(1,0,0,40)
@@ -33,158 +36,73 @@ Discord.Text = "Discord: UdinPeot"
 Discord.Font = Enum.Font.Gotham
 Discord.TextSize = 24
 Discord.TextColor3 = Color3.fromRGB(255,255,255)
+Discord.TextTransparency = 0.3 -- 🔹 lebih tipis
 Discord.BackgroundTransparency = 1
 
--- ✨ Stars
-for i=1,30 do
+-- 🌟 Star Effect
+local stars = {}
+local function createStar()
 	local star = Instance.new("Frame")
 	star.Size = UDim2.new(0, math.random(4,8), 0, math.random(4,8))
 	star.Position = UDim2.new(math.random(),0, math.random(),0)
-	star.BackgroundColor3 = Color3.fromRGB(255,255,255)
-	star.BackgroundTransparency = 0.2
+	star.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	star.BackgroundTransparency = 0.5
 	star.BorderSizePixel = 0
 	star.Parent = Background
+
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(1,0)
 	corner.Parent = star
+	table.insert(stars, star)
 end
 
--- ⏳ After 3 sec show button
+for i=1,30 do
+	createStar()
+end
+
+-- Hapus intro setelah 3 detik
 task.delay(3, function()
 	IntroGui:Destroy()
 
+	-- ✅ Setelah intro → Buat tombol
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Parent = PlayerGui
 	ScreenGui.ResetOnSpawn = false
 
-	-- ✅ Main Button
 	local Button = Instance.new("TextButton")
 	Button.Parent = ScreenGui
-	Button.Size = UDim2.new(0, 200, 0, 60)
-	Button.Position = UDim2.new(0.5, -100, 0.5, -30)
-	Button.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-	Button.Text = "⚡ Execute Script ⚡"
+	Button.Size = UDim2.new(0,200,0,50)
+	Button.Position = UDim2.new(0.5,-100,0.5,-25)
+	Button.Text = "Execute Owner Visible"
+	Button.BackgroundColor3 = Color3.fromRGB(70,130,180) -- steel blue
 	Button.TextColor3 = Color3.fromRGB(255,255,255)
 	Button.Font = Enum.Font.GothamBold
 	Button.TextSize = 20
+	Button.AutoButtonColor = true
 
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0,15)
-	corner.Parent = Button
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0,12)
+	UICorner.Parent = Button
 
-	local stroke = Instance.new("UIStroke")
-	stroke.Parent = Button
-	stroke.Color = Color3.fromRGB(255,255,255)
-	stroke.Thickness = 2
-
-	-- ✅ Draggable
-	local dragging, dragInput, dragStart, startPos
-	local function update(input)
-		local delta = input.Position - dragStart
-		Button.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-
-	Button.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = Button.Position
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
+	local count = 0
+	Button.MouseButton1Click:Connect(function()
+		count = count + 1
+		if count <= 2 then
+			-- ✅ Jalankan perintah
+			local success,err = pcall(function()
+				local target = player.PlayerGui.Main.Right.Content.Owner
+				if target then
+					target.Visible = true
 				end
 			end)
-		end
-	end)
-
-	Button.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
-		end
-	end)
-
-	game:GetService("UserInputService").InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			update(input)
-		end
-	end)
-
-	-- ✅ Execution Limit
-	local execCount = 0
-	Button.MouseButton1Click:Connect(function()
-		execCount += 1
-		if execCount <= 2 then
-			Button.Text = "✅ Executed ("..execCount.."/2)"
-		else
-			Button.Text = "❌ Limit Reached"
-			task.delay(2, function()
-				Button.Text = "⚡ Execute Script ⚡"
-			end)
-		end
-	end)
-
-	-- 🎨 RGB Color Picker
-	local Picker = Instance.new("Frame")
-	Picker.Parent = ScreenGui
-	Picker.Size = UDim2.new(0, 200, 0, 120)
-	Picker.Position = UDim2.new(0.5, -100, 0.8, 0)
-	Picker.BackgroundColor3 = Color3.fromRGB(40,40,40)
-	Picker.Visible = false
-
-	local corner2 = Instance.new("UICorner")
-	corner2.CornerRadius = UDim.new(0,12)
-	corner2.Parent = Picker
-
-	local title = Instance.new("TextLabel")
-	title.Parent = Picker
-	title.Size = UDim2.new(1,0,0,25)
-	title.Text = "🎨 RGB Customizer"
-	title.BackgroundTransparency = 1
-	title.TextColor3 = Color3.fromRGB(255,255,255)
-	title.Font = Enum.Font.GothamBold
-	title.TextSize = 16
-
-	-- sliders R, G, B
-	local sliders = {}
-	local values = {R=0,G=170,B=255}
-	for i,clr in ipairs({"R","G","B"}) do
-		local slider = Instance.new("TextBox")
-		slider.Parent = Picker
-		slider.Size = UDim2.new(1,-10,0,25)
-		slider.Position = UDim2.new(0,5,0,(i*30))
-		slider.BackgroundColor3 = Color3.fromRGB(60,60,60)
-		slider.PlaceholderText = clr.." value (0-255)"
-		slider.Text = tostring(values[clr])
-		slider.TextColor3 = Color3.fromRGB(255,255,255)
-		slider.Font = Enum.Font.Gotham
-		slider.TextSize = 14
-		sliders[clr] = slider
-
-		slider.FocusLost:Connect(function()
-			local num = tonumber(slider.Text)
-			if num and num>=0 and num<=255 then
-				values[clr] = num
-				Button.BackgroundColor3 = Color3.fromRGB(values.R,values.G,values.B)
+			if not success then
+				warn("Error: "..tostring(err))
 			end
-		end)
-	end
-
-	-- Toggle Picker
-	local Toggle = Instance.new("TextButton")
-	Toggle.Parent = ScreenGui
-	Toggle.Size = UDim2.new(0,120,0,40)
-	Toggle.Position = UDim2.new(0.5, -60, 0.7, 0)
-	Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
-	Toggle.Text = "🎨 Color Menu"
-	Toggle.TextColor3 = Color3.fromRGB(255,255,255)
-	Toggle.Font = Enum.Font.GothamBold
-	Toggle.TextSize = 14
-
-	local corner3 = Instance.new("UICorner")
-	corner3.CornerRadius = UDim.new(0,10)
-	corner3.Parent = Toggle
-
-	Toggle.MouseButton1Click:Connect(function()
-		Picker.Visible = not Picker.Visible
+		else
+			Button.Text = "⚠ Cannot be executed 3 times"
+			task.wait(2)
+			Button.Text = "Execute Owner Visible"
+			count = 0 -- balik normal
+		end
 	end)
 end)
